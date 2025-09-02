@@ -7,7 +7,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Estágio 2: Imagem final com JRE (mais leve)
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 # Copia o .jar gerado no estágio anterior
 COPY --from=builder /app/target/*.jar app.jar
