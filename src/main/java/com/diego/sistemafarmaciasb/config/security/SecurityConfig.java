@@ -51,7 +51,7 @@ public class SecurityConfig {
         // Adicione a URL do seu front-end no Render.com a esta lista.
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5173",             // Para o seu desenvolvimento local
-                "https://farmacia-app.onrender.com"  // EXEMPLO: Substitua pela sua URL de produção
+                "https://farmacia-app-pp4r.onrender.com"  // EXEMPLO: Substitua pela sua URL de produção
         ));
 
         // Métodos HTTP permitidos
