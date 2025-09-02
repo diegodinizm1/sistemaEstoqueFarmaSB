@@ -33,7 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(withDefaults()) // Adiciona a configuração CORS
+                .cors(withDefaults()) // Esta linha ativa a configuração de CORS definida abaixo
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
@@ -46,12 +46,25 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Apenas o seu frontend
+
+        // --- AQUI ESTÁ A PARTE MAIS IMPORTANTE ---
+        // Adicione a URL do seu front-end no Render.com a esta lista.
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",             // Para o seu desenvolvimento local
+                "https://seu-frontend.onrender.com"  // EXEMPLO: Substitua pela sua URL de produção
+        ));
+
+        // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*")); // Permite todos os cabeçalhos
-        configuration.setAllowCredentials(true); // Permite credenciais (cookies, tokens)
+        // Cabeçalhos permitidos (usar "*" permite todos, incluindo o 'Authorization')
+        configuration.setAllowedHeaders(List.of("*"));
+        // Permite o envio de credenciais (necessário para autenticação baseada em token)
+        configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplica a todas as rotas
+        // Aplica esta configuração a todas as rotas da sua API ("/**")
+        source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 
