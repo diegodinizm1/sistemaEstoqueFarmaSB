@@ -1,0 +1,36 @@
+package com.diego.sistemafarmaciasb.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Table(name = "estoque")
+// Usando anotações mais seguras que @Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class Estoque {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    // 1. UM ÚNICO RELACIONAMENTO com a entidade base Item
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id", nullable = false)
+    private Item item;
+
+    @Column(name = "numero_lote", nullable = false)
+    private String numeroLote;
+
+    @Column(name = "data_validade", nullable = false)
+    private LocalDate dataValidade;
+
+    @Column(nullable = false)
+    private int quantidade;
+}

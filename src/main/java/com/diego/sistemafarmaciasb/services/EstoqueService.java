@@ -1,0 +1,111 @@
+package com.diego.sistemafarmaciasb.services;
+
+import com.diego.sistemafarmaciasb.dtos.estoque.AjusteLoteDTO;
+import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueListaDTO;
+import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO;
+import com.diego.sistemafarmaciasb.model.exceptions.RecursoNaoEncontradoException;
+import com.diego.sistemafarmaciasb.model.exceptions.ValidacaoException;
+import com.diego.sistemafarmaciasb.model.*;
+import com.diego.sistemafarmaciasb.model.enums.TipoMovimentacao;
+import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
+import com.diego.sistemafarmaciasb.repository.ItemRepository;
+import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository; // Necessário para auditoria de ajuste
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class EstoqueService {
+
+    private final EstoqueRepository estoqueRepository;
+    private final ItemRepository itemRepository;
+    private final MovimentacaoRepository movimentacaoRepository;
+
+    public EstoqueService(EstoqueRepository estoqueRepository, ItemRepository itemRepository, MovimentacaoRepository movimentacaoRepository) {
+        this.estoqueRepository = estoqueRepository;
+        this.itemRepository = itemRepository;
+        this.movimentacaoRepository = movimentacaoRepository;
+    }
+
+    /**
+     * Retorna a lista de saldos de estoque (agrupado por item).
+     * Usado na tela principal de Estoque (visão Mestre).
+     */
+    @Transactional(readOnly = true)
+    public List<EstoqueSaldoDTO> listarSaldosDeEstoque() {
+        return estoqueRepository.findEstoqueSaldos();
+    }
+
+    /**
+     * Retorna a lista de lotes de um item específico.
+     * Usado no modal de "Ver Lotes" (visão Detalhe).
+     */
+    @Transactional(readOnly = true)
+    public List<EstoqueListaDTO> listarLotesPorItem(UUID itemId) {
+        if (!itemRepository.existsById(itemId)) {
+            throw new RecursoNaoEncontradoException("Item com ID " + itemId + " não encontrado.");
+        }
+        return estoqueRepository.findByItemIdOrderByDataValidadeAsc(itemId).stream()
+                .map(this::paraListaDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Ajusta a quantidade e/ou data de validade de um lote específico.
+     * Cria uma movimentação de ajuste para fins de auditoria.
+     */
+    @Transactional
+    public EstoqueListaDTO ajustarLote(UUID estoqueId, AjusteLoteDTO dto) {
+        Estoque estoque = estoqueRepository.findById(estoqueId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Lote de estoque com ID " + estoqueId + " não encontrado."));
+
+        int quantidadeAntiga = estoque.getQuantidade();
+        int novaQuantidade = dto.novaQuantidade();
+        int diferenca = novaQuantidade - quantidadeAntiga;
+
+        estoque.setQuantidade(novaQuantidade);
+        estoque.setDataValidade(dto.novaDataValidade());
+        Estoque loteSalvo = estoqueRepository.save(estoque);
+
+        if (diferenca != 0) {
+            Movimentacao movimentacao = new Movimentacao();
+            movimentacao.setItem(estoque.getItem());
+            movimentacao.setQuantidade(Math.abs(diferenca));
+            movimentacao.setObservacao(dto.observacao());
+            movimentacao.setFuncionario(getUsuarioLogado());
+            movimentacao.setTipoMovimentacao(diferenca > 0 ? TipoMovimentacao.AJUSTE_ENTRADA : TipoMovimentacao.AJUSTE_SAIDA);
+            movimentacaoRepository.save(movimentacao);
+        }
+
+        return paraListaDTO(loteSalvo);
+    }
+
+    // O método de deletar lote pode ser adicionado aqui se necessário,
+    // com a regra de negócio de só permitir se a quantidade for zero.
+
+    // --- Método de conversão auxiliar ---
+    private EstoqueListaDTO paraListaDTO(Estoque estoque) {
+        String tipoItem = (estoque.getItem() instanceof Medicamento) ? "MEDICAMENTO" : "INSUMO";
+        return new EstoqueListaDTO(
+                estoque.getId(),
+                estoque.getNumeroLote(),
+                estoque.getDataValidade(),
+                estoque.getQuantidade(),
+                estoque.getItem().getId(),
+                estoque.getItem().getNome(),
+                tipoItem
+        );
+    }
+    private Funcionario getUsuarioLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("Nenhum usuário autenticado encontrado.");
+        }
+        return (Funcionario) authentication.getPrincipal();
+    }
+}
