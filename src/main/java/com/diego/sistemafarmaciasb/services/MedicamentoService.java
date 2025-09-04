@@ -7,6 +7,8 @@ import com.diego.sistemafarmaciasb.model.exceptions.ResourceInUseException;
 import com.diego.sistemafarmaciasb.repository.MedicamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -20,12 +22,14 @@ public class MedicamentoService {
     @Autowired
     private MedicamentoRepository medicamentoRepository;
 
+    @Cacheable(value = "medicamentos")
     public List<MedicamentoDTO> listarTodos() {
         return medicamentoRepository.findAll().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "medicamentos", allEntries = true)
     public MedicamentoDTO salvar(MedicamentoDTO dto) {
         Medicamento medicamento = convertToEntity(dto);
         Medicamento salvo = medicamentoRepository.save(medicamento);
@@ -33,6 +37,7 @@ public class MedicamentoService {
     }
 
     @Transactional
+    @CacheEvict(value = "medicamentos", allEntries = true)
     public MedicamentoDTO atualizar(UUID id, MedicamentoDTO dto) {
         Medicamento medicamentoAntigo = medicamentoRepository.findById(id).orElseThrow(
                 ()-> new RecursoNaoEncontradoException("Medicamento não encontrado")
@@ -72,6 +77,7 @@ public class MedicamentoService {
         return medicamento;
     }
 
+    @Cacheable(value = "medicamentoPorId", key = "#id")
     public Optional<MedicamentoDTO> buscarPorId(UUID id) {
         return medicamentoRepository.findById(id).map(this::convertToDto);
     }

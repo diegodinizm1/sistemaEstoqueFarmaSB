@@ -9,8 +9,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "movimentacoes")
-// 2. Substituindo @Data por anotações mais seguras
+@Table(name = "movimentacoes", indexes = {
+        // Índice para a busca de histórico
+        @Index(name = "idx_movimentacao_setor_id", columnList = "setor_id"),
+        @Index(name = "idx_mov_data_setor", columnList = "data_movimentacao, setor_id")
+})
 @Getter
 @Setter
 @AllArgsConstructor

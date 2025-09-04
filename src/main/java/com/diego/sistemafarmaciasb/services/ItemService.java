@@ -7,6 +7,7 @@ import com.diego.sistemafarmaciasb.model.Medicamento;
 import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
 import com.diego.sistemafarmaciasb.repository.ItemRepository;
 import org.hibernate.Hibernate; // Importe o Hibernate
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +61,7 @@ public class ItemService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable("itens-com-estoque")
     public List<ItemDTO> listarItensComEstoque() {
         List<Item> itensComEstoque = estoqueRepository.findItensComEstoqueDisponivel();
 

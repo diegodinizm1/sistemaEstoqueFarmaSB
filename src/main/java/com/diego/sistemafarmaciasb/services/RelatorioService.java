@@ -10,6 +10,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -31,6 +32,8 @@ public class RelatorioService {
         this.movimentacaoRepository = movimentacaoRepository;
     }
 
+
+    @Cacheable(value = "relatoriosSaidasDiarias", key = "#data")
     public byte[] gerarRelatorioSaidasDiarias(LocalDate data) {
         LocalDateTime inicioDoDia = data.atStartOfDay();
         LocalDateTime fimDoDia = data.atTime(23, 59, 59);

@@ -6,7 +6,10 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "item") // A nova tabela única
+@Table(name = "item", indexes = {
+        @Index(name = "idx_item_nome", columnList = "nome"),
+        @Index(name = "idx_item_descricao", columnList = "descricao_detalhada")
+}) // A nova tabela única
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE) // Estratégia de herança
 @DiscriminatorColumn(name = "tipo_item", discriminatorType = DiscriminatorType.STRING) // Coluna que diferencia os tipos
 // Usando anotações mais seguras que @Data para entidades

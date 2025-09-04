@@ -9,6 +9,7 @@ import com.diego.sistemafarmaciasb.model.enums.TipoMovimentacao;
 import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
 import com.diego.sistemafarmaciasb.repository.ItemRepository;
 import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository; // Necessário para auditoria de ajuste
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -50,6 +51,7 @@ public class EstoqueService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "lotesPorItem", key = "#itemId")
     public List<EstoqueListaDTO> listarLotesPorItem(UUID itemId) {
         if (!itemRepository.existsById(itemId)) {
             throw new RecursoNaoEncontradoException("Item com ID " + itemId + " não encontrado.");

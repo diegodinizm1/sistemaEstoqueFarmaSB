@@ -5,6 +5,7 @@ import com.diego.sistemafarmaciasb.model.exceptions.ValidacaoException;
 import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
 import com.diego.sistemafarmaciasb.repository.ItemRepository;
 import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class DashboardService {
     /**
      * Calcula e retorna as estatísticas principais para os cards do dashboard.
      */
+    @Cacheable("dashboard-geral")
     public DashboardStatsDTO getStats() {
         int diasAlertaVencimento = Integer.parseInt(
                 configuracaoService.getValor("DIAS_ALERTA_VENCIMENTO", "30")
@@ -61,6 +63,7 @@ public class DashboardService {
     /**
      * Retorna a lista de lotes que estão próximos de vencer.
      */
+    @Cacheable("dashboard-lotes-vencimento")
     public List<AlertaEstoqueDTO> getLotesProximosVencimento() {
         int diasAlertaVencimento = Integer.parseInt(
                 configuracaoService.getValor("DIAS_ALERTA_VENCIMENTO", "30")
@@ -80,6 +83,7 @@ public class DashboardService {
     /**
      * Retorna a lista de itens cujo estoque total está abaixo do mínimo definido.
      */
+    @Cacheable("dashboard-estoque-baixo")
     public List<AlertaEstoqueDTO> getItensComEstoqueBaixo() {
         long limiteEstoqueBaixo = Long.parseLong(
                 configuracaoService.getValor("LIMITE_ESTOQUE_BAIXO", "10")
@@ -87,17 +91,20 @@ public class DashboardService {
         return estoqueRepository.findItensComEstoqueBaixoComRegraHieraquica(limiteEstoqueBaixo);
     }
 
+    @Cacheable("dashboard-movimentacoes-mes")
     public List<MovimentacaoMensalDTO> getMovimentacoesPorMes() {
         LocalDateTime dataLimite = LocalDateTime.now().minusYears(1);
         return estoqueRepository.findMovimentacoesMensais(dataLimite);
     }
 
+    @Cacheable("dashboard-top-itens-estoque")
     public List<GraficoEstoqueDTO> getDadosGraficoEstoque() {
         // Pede ao repositório os 5 itens com maior quantidade em estoque
         Pageable topFive = PageRequest.of(0, 5);
         return estoqueRepository.findTopEstoqueItens(topFive);
     }
 
+    @Cacheable(value = "dashboard-consumo-setor", key = "#periodo")
     public List<ConsumoSetorDTO> getConsumoPorSetor(String periodo) {
         LocalDateTime agora = LocalDateTime.now();
         LocalDateTime inicio;

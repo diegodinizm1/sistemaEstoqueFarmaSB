@@ -13,6 +13,8 @@ import com.diego.sistemafarmaciasb.repository.ItemRepository;
 import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository;
 import com.diego.sistemafarmaciasb.repository.SetorRepository;
 import org.hibernate.Hibernate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ public class MovimentacaoService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "historicoMovimentacoes")
     public List<MovimentacaoHistoricoDTO> listarHistorico() {
         return movimentacaoRepository.findAllByOrderByDataMovimentacaoDesc().stream()
                 .map(this::paraHistoricoDTO)
@@ -47,6 +50,7 @@ public class MovimentacaoService {
     }
 
     @Transactional
+    @CacheEvict(value = "historicoMovimentacoes", allEntries = true)
     public MovimentacaoHistoricoDTO registrarEntrada(MovimentacaoEntradaDTO dto) {
         Item item = itemRepository.findById(dto.itemId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Item não encontrado."));
@@ -72,6 +76,7 @@ public class MovimentacaoService {
     }
 
     @Transactional
+    @CacheEvict(value = "historicoMovimentacoes", allEntries = true)
     public MovimentacaoHistoricoDTO registrarSaida(MovimentacaoSaidaDTO dto) {
         Item item = itemRepository.findById(dto.itemId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Item não encontrado."));
@@ -131,6 +136,7 @@ public class MovimentacaoService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "detalhesMovimentacao", key = "#id")
     public MovimentacaoDetalhesDTO buscarDetalhesPorId(UUID id) {
         Movimentacao mov = movimentacaoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Movimentação com ID " + id + " não encontrada."));

@@ -7,8 +7,10 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "estoque")
-// Usando anotações mais seguras que @Data
+@Table(name = "estoque", indexes = {
+        @Index(name = "idx_estoque_item_validade", columnList = "item_id, data_validade"),
+        @Index(name = "idx_estoque_item_quantidade", columnList = "item_id, quantidade")
+})
 @Getter
 @Setter
 @AllArgsConstructor
