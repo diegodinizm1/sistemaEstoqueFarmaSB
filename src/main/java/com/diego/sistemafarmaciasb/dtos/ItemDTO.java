@@ -11,5 +11,7 @@ public record ItemDTO(
         String unidadeMedida,
         boolean ativo,
         String dtype,
-        MedicamentoTipo tipo
+        MedicamentoTipo tipo,
+        boolean possuiEstoque,
+        int estoqueMinimo
 ) {}

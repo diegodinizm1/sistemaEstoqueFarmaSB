@@ -5,6 +5,8 @@ import com.diego.sistemafarmaciasb.dtos.dashboard.GraficoEstoqueDTO;
 import com.diego.sistemafarmaciasb.dtos.dashboard.MovimentacaoMensalDTO;
 import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO;
 import com.diego.sistemafarmaciasb.model.Estoque;
+import com.diego.sistemafarmaciasb.model.Item;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
@@ -24,8 +27,21 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
             "e.item.id, e.item.nome, " +
             "CASE WHEN TYPE(e.item) = Medicamento THEN 'MEDICAMENTO' ELSE 'INSUMO' END, " +
             "SUM(e.quantidade)) " +
-            "FROM Estoque e WHERE e.quantidade > 0 GROUP BY e.item.id, e.item.nome, TYPE(e.item)")
-    List<EstoqueSaldoDTO> findEstoqueSaldos();
+            "FROM Estoque e " +
+            "WHERE e.quantidade > 0 " +
+            // ESTA LINHA FAZ A MÁGICA:
+            "AND (:busca IS NULL OR lower(e.item.nome) LIKE lower(concat('%', :busca, '%'))) " +
+            "GROUP BY e.item.id, e.item.nome, TYPE(e.item)")
+    Page<EstoqueSaldoDTO> findEstoqueSaldosComFiltro(Pageable pageable, @Param("busca") String busca);
+
+    @Query("SELECT new com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO(" +
+            "e.item.id, e.item.nome, " +
+            "CASE WHEN TYPE(e.item) = Medicamento THEN 'MEDICAMENTO' ELSE 'INSUMO' END, " +
+            "SUM(e.quantidade)) " +
+            "FROM Estoque e " +
+            "WHERE e.quantidade > 0 " +
+            "GROUP BY e.item.id, e.item.nome, TYPE(e.item)")
+    Page<EstoqueSaldoDTO> findEstoqueSaldosSemFiltro(Pageable pageable);
 
     List<Estoque> findByItemIdOrderByDataValidadeAsc(UUID itemId);
 
@@ -36,6 +52,9 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
             "HAVING (e.item.estoqueMinimo > 0 AND SUM(e.quantidade) < e.item.estoqueMinimo) " + // Regra Específica
             "OR (e.item.estoqueMinimo <= 0 AND SUM(e.quantidade) < :limiteEstoqueBaixoGeral)") // Regra Geral
     List<AlertaEstoqueDTO> findItensComEstoqueBaixoComRegraHieraquica(@Param("limiteEstoqueBaixoGeral") long limiteEstoqueBaixoGeral);
+
+    @Query("SELECT DISTINCT e.item FROM Estoque e WHERE e.quantidade > 0")
+    List<Item> findItensComEstoqueDisponivel();
 
     @Query("""
         SELECT new com.diego.sistemafarmaciasb.dtos.dashboard.MovimentacaoMensalDTO(
@@ -61,5 +80,7 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
             "ORDER BY SUM(e.quantidade) DESC")
     List<GraficoEstoqueDTO> findTopEstoqueItens(Pageable pageable);
 
+    @Query("SELECT DISTINCT e.item.id FROM Estoque e WHERE e.quantidade > 0")
+    Set<UUID> findDistinctItemIdsInEstoque();
 }
 

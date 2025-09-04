@@ -5,6 +5,8 @@ import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueListaDTO;
 import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO;
 import com.diego.sistemafarmaciasb.services.EstoqueService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,27 +29,19 @@ public class EstoqueController {
      * Rota: GET /api/estoque
      */
     @GetMapping
-    public ResponseEntity<List<EstoqueSaldoDTO>> listarSaldos() {
-        List<EstoqueSaldoDTO> saldos = estoqueService.listarSaldosDeEstoque();
-        return ResponseEntity.ok(saldos);
+    public ResponseEntity<Page<EstoqueSaldoDTO>> listarSaldos(
+            Pageable pageable,
+            @RequestParam(required = false) String busca) {
+        return ResponseEntity.ok(estoqueService.listarSaldosDeEstoque(pageable, busca));
     }
 
-    /**
-     * Endpoint de Detalhe: Retorna todos os lotes de um item específico.
-     * Usado pelo modal "Ver Lotes" no front-end.
-     * Rota: GET /api/estoque/item/{itemId}
-     */
+
     @GetMapping("/item/{itemId}")
     public ResponseEntity<List<EstoqueListaDTO>> listarLotesPorItem(@PathVariable UUID itemId) {
         List<EstoqueListaDTO> lotes = estoqueService.listarLotesPorItem(itemId);
         return ResponseEntity.ok(lotes);
     }
 
-    /**
-     * Endpoint de Ajuste: Atualiza a quantidade ou validade de um lote específico.
-     * Usado pelo modal de "Ajustar Lote" no front-end.
-     * Rota: PUT /api/estoque/ajustar/{estoqueId}
-     */
     @PutMapping("/ajustar/{estoqueId}")
     public ResponseEntity<EstoqueListaDTO> ajustarLote(
             @PathVariable UUID estoqueId,
@@ -56,9 +50,4 @@ public class EstoqueController {
         return ResponseEntity.ok(loteAtualizado);
     }
 
-    // ----------------------------------------------------------------------------------
-    // OBSERVAÇÃO: O endpoint POST para criar um lote foi REMOVIDO deste controller.
-    // A criação de um novo lote agora é uma responsabilidade do MovimentacaoController,
-    // através do endpoint POST /api/movimentacoes/entrada.
-    // ----------------------------------------------------------------------------------
 }

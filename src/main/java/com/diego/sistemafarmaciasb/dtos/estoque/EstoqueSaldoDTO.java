@@ -6,5 +6,5 @@ public record EstoqueSaldoDTO(
         UUID itemId,
         String nomeItem,
         String dtype, // "MEDICAMENTO" ou "INSUMO"
-        long quantidadeTotal // A soma de todos os lotes
+        Long quantidadeTotal // A soma de todos os lotes
 ) {}

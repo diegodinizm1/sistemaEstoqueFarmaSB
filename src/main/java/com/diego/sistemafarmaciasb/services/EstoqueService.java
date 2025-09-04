@@ -4,12 +4,13 @@ import com.diego.sistemafarmaciasb.dtos.estoque.AjusteLoteDTO;
 import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueListaDTO;
 import com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO;
 import com.diego.sistemafarmaciasb.model.exceptions.RecursoNaoEncontradoException;
-import com.diego.sistemafarmaciasb.model.exceptions.ValidacaoException;
 import com.diego.sistemafarmaciasb.model.*;
 import com.diego.sistemafarmaciasb.model.enums.TipoMovimentacao;
 import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
 import com.diego.sistemafarmaciasb.repository.ItemRepository;
 import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository; // Necessário para auditoria de ajuste
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,14 +38,17 @@ public class EstoqueService {
      * Usado na tela principal de Estoque (visão Mestre).
      */
     @Transactional(readOnly = true)
-    public List<EstoqueSaldoDTO> listarSaldosDeEstoque() {
-        return estoqueRepository.findEstoqueSaldos();
+    public Page<EstoqueSaldoDTO> listarSaldosDeEstoque(Pageable pageable, String busca) {
+        if (busca == null || busca.isBlank()) {
+            return estoqueRepository.findEstoqueSaldosSemFiltro(pageable);
+        } else {
+            return estoqueRepository.findEstoqueSaldosComFiltro(pageable, busca);
+        }
     }
 
-    /**
-     * Retorna a lista de lotes de um item específico.
-     * Usado no modal de "Ver Lotes" (visão Detalhe).
-     */
+
+
+
     @Transactional(readOnly = true)
     public List<EstoqueListaDTO> listarLotesPorItem(UUID itemId) {
         if (!itemRepository.existsById(itemId)) {

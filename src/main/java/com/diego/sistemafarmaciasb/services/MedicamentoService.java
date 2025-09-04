@@ -3,9 +3,11 @@ package com.diego.sistemafarmaciasb.services;
 import com.diego.sistemafarmaciasb.dtos.medicamentos.MedicamentoDTO;
 import com.diego.sistemafarmaciasb.model.Medicamento;
 import com.diego.sistemafarmaciasb.model.exceptions.RecursoNaoEncontradoException;
+import com.diego.sistemafarmaciasb.model.exceptions.ResourceInUseException;
 import com.diego.sistemafarmaciasb.repository.MedicamentoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +78,17 @@ public class MedicamentoService {
 
     public void removerPorId(UUID id) {
         if(medicamentoRepository.existsById(id)) {
-            medicamentoRepository.deleteById(id);
+            try {
+                medicamentoRepository.deleteById(id);
+            } catch(DataIntegrityViolationException e){
+                if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                    String sqlState = ((org.hibernate.exception.ConstraintViolationException) e.getCause()).getSQLException().getSQLState();
+
+                    if ("23503".equals(sqlState)) {
+                        throw new ResourceInUseException("Este item não pode ser excluído, pois está sendo usado em outros registros.");
+                    }
+                }
+            }
         }else{
             throw new RecursoNaoEncontradoException("Medicamento inexistente para deleção");
         }
