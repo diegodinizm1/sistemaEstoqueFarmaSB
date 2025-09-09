@@ -30,6 +30,20 @@ public class ItemService {
         this.estoqueRepository = estoqueRepository;
     }
 
+    public List<ItemDTO> listarTodosParaAdd() {
+        // 1. Busca todos os itens do repositório.
+        List<Item> items = itemRepository.findAll();
+
+        // 2. Para evitar múltiplas consultas ao banco de dados (problema N+1),
+        //    buscamos de uma só vez um conjunto com os IDs de todos os itens que já estão no estoque.
+        Set<UUID> idsComEstoque = estoqueRepository.findDistinctItemIdsInEstoque();
+
+        // 3. Usamos a API de Streams para transformar cada entidade 'Item' em um 'ItemDTO'.
+        return items.stream()
+                .map(item -> paraDTO(item, idsComEstoque.contains(item.getId()))) // Chama o método auxiliar paraDTO.
+                .collect(Collectors.toList());                                   // Coleta o resultado em uma nova lista.
+    }
+
     @Transactional(readOnly = true)
     public Page<ItemDTO> listarTodos(Pageable pageable, String dtype, String busca) {
         // 1. Cria a especificação para filtrar por tipo (Medicamento ou Insumo)
