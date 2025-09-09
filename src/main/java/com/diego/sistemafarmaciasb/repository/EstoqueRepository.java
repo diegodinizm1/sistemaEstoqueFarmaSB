@@ -58,7 +58,7 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
         SELECT new com.diego.sistemafarmaciasb.dtos.dashboard.MovimentacaoMensalDTO(
             MONTH(m.dataMovimentacao),
             SUM(CASE WHEN m.tipoMovimentacao IN ('ENTRADA', 'AJUSTE_ENTRADA') THEN mi.quantidade ELSE 0 END),
-            SUM(CASE WHEN m.tipoMovimentacao IN ('SAIDA', 'AJUSTE_SAIDA') THEN mi.quantidade ELSE 0 END)
+            SUM(CASE WHEN m.tipoMovimentacao IN ('SAIDA') THEN mi.quantidade ELSE 0 END)
         )
         FROM Movimentacao m JOIN m.itens mi
         WHERE m.dataMovimentacao >= :dataLimite
