@@ -1,6 +1,5 @@
 package com.diego.sistemafarmaciasb.controllers;
 
-import com.diego.sistemafarmaciasb.dtos.estoque.AjusteLoteDTO;
 import com.diego.sistemafarmaciasb.dtos.movimentacoes.MovimentacaoDetalhesDTO;
 import com.diego.sistemafarmaciasb.dtos.movimentacoes.MovimentacaoEntradaDTO;
 import com.diego.sistemafarmaciasb.dtos.movimentacoes.MovimentacaoHistoricoDTO;
@@ -29,14 +28,14 @@ public class MovimentacaoController {
     }
 
     @PostMapping("/entrada")
-    public ResponseEntity<MovimentacaoHistoricoDTO> registrarEntrada(@Valid @RequestBody MovimentacaoEntradaDTO dto) {
-        MovimentacaoHistoricoDTO novaMovimentacao = movimentacaoService.registrarEntrada(dto);
+    public ResponseEntity<MovimentacaoDetalhesDTO> registrarEntrada(@Valid @RequestBody MovimentacaoEntradaDTO dto) {
+        MovimentacaoDetalhesDTO novaMovimentacao = movimentacaoService.registrarEntrada(dto);
         return ResponseEntity.status(201).body(novaMovimentacao);
     }
 
     @PostMapping("/saida")
-    public ResponseEntity<MovimentacaoHistoricoDTO> registrarSaida(@Valid @RequestBody MovimentacaoSaidaDTO dto) {
-        MovimentacaoHistoricoDTO novaMovimentacao = movimentacaoService.registrarSaida(dto);
+    public ResponseEntity<MovimentacaoDetalhesDTO> registrarSaida(@Valid @RequestBody MovimentacaoSaidaDTO dto) {
+        MovimentacaoDetalhesDTO novaMovimentacao = movimentacaoService.registrarSaida(dto);
         return ResponseEntity.status(201).body(novaMovimentacao);
     }
 
@@ -45,5 +44,4 @@ public class MovimentacaoController {
         MovimentacaoDetalhesDTO detalhes = movimentacaoService.buscarDetalhesPorId(id);
         return ResponseEntity.ok(detalhes);
     }
-
 }

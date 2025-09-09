@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.itextpdf.kernel.geom.PageSize;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,7 +58,7 @@ public class RelatorioService {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
         PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
+        Document document = new Document(pdf, PageSize.A4.rotate());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         document.add(new Paragraph("Relatório de Saídas Diárias por Item e Setor").setBold().setFontSize(18));
@@ -73,11 +74,11 @@ public class RelatorioService {
         // 4. Cria a tabela com colunas dinâmicas
         // Número de colunas = 1 (para o Item) + número de setores + 1 (para o Total)
         float[] columnWidths = new float[nomesDosSetores.size() + 2];
-        columnWidths[0] = 3; // Coluna do item é mais larga
+        columnWidths[0] = 8; // Coluna do item é mais larga
         for (int i = 1; i < columnWidths.length - 1; i++) {
             columnWidths[i] = 1; // Colunas dos setores
         }
-        columnWidths[columnWidths.length - 1] = 1; // Coluna total
+        columnWidths[columnWidths.length - 1] = 2; // Coluna total
 
         Table table = new Table(UnitValue.createPercentArray(columnWidths));
         table.setWidth(UnitValue.createPercentValue(100));

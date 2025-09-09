@@ -1,19 +1,13 @@
 package com.diego.sistemafarmaciasb.dtos.movimentacoes;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record MovimentacaoEntradaDTO(
-        @NotNull UUID itemId,
-        @NotNull @Positive Integer quantidade,
         String observacao,
-
-        // Novos campos
-        @NotBlank String numeroLote,
-        @NotNull @Future LocalDate dataValidade // Garante que a data seja no futuro
+        @NotEmpty @Valid List<ItemEntradaDTO> itens// Garante que a data seja no futuro
 ) {}

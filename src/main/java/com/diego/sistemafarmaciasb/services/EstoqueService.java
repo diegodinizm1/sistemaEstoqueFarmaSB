@@ -8,7 +8,7 @@ import com.diego.sistemafarmaciasb.model.*;
 import com.diego.sistemafarmaciasb.model.enums.TipoMovimentacao;
 import com.diego.sistemafarmaciasb.repository.EstoqueRepository;
 import com.diego.sistemafarmaciasb.repository.ItemRepository;
-import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository; // Necessário para auditoria de ajuste
+import com.diego.sistemafarmaciasb.repository.MovimentacaoRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,9 +47,6 @@ public class EstoqueService {
         }
     }
 
-
-
-
     @Transactional(readOnly = true)
     @Cacheable(value = "lotesPorItem", key = "#itemId")
     public List<EstoqueListaDTO> listarLotesPorItem(UUID itemId) {
@@ -78,25 +75,25 @@ public class EstoqueService {
         estoque.setDataValidade(dto.novaDataValidade());
         Estoque loteSalvo = estoqueRepository.save(estoque);
 
+        // Se houve alteração na quantidade, cria a movimentação de auditoria
         if (diferenca != 0) {
+            // Cria a "capa" da movimentação
             Movimentacao movimentacao = new Movimentacao();
-            movimentacao.setItem(estoque.getItem());
-            movimentacao.setQuantidade(Math.abs(diferenca));
             movimentacao.setObservacao(dto.observacao());
             movimentacao.setFuncionario(getUsuarioLogado());
             movimentacao.setTipoMovimentacao(diferenca > 0 ? TipoMovimentacao.AJUSTE_ENTRADA : TipoMovimentacao.AJUSTE_SAIDA);
+
+            movimentacao.adicionarItem(estoque.getItem(), Math.abs(diferenca));
+
             movimentacaoRepository.save(movimentacao);
         }
 
         return paraListaDTO(loteSalvo);
     }
 
-    // O método de deletar lote pode ser adicionado aqui se necessário,
-    // com a regra de negócio de só permitir se a quantidade for zero.
-
-    // --- Método de conversão auxiliar ---
     private EstoqueListaDTO paraListaDTO(Estoque estoque) {
-        String tipoItem = (estoque.getItem() instanceof Medicamento) ? "MEDICAMENTO" : "INSUMO";
+        // Esta verificação pode ser otimizada se você tiver o tipo no próprio item
+        String tipoItem = (estoque.getItem().getClass().getSimpleName().equalsIgnoreCase("Medicamento")) ? "MEDICAMENTO" : "INSUMO";
         return new EstoqueListaDTO(
                 estoque.getId(),
                 estoque.getNumeroLote(),
@@ -107,6 +104,7 @@ public class EstoqueService {
                 tipoItem
         );
     }
+
     private Funcionario getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

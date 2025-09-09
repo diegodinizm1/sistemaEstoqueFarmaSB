@@ -20,7 +20,6 @@ import java.util.UUID;
 
 public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
 
-    // Busca todos os lotes de um item que ainda têm quantidade, ordenados pela data de validade mais próxima
     List<Estoque> findByItemIdAndQuantidadeGreaterThanOrderByDataValidadeAsc(UUID itemId, int quantidade);
 
     @Query("SELECT new com.diego.sistemafarmaciasb.dtos.estoque.EstoqueSaldoDTO(" +
@@ -29,7 +28,6 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
             "SUM(e.quantidade)) " +
             "FROM Estoque e " +
             "WHERE e.quantidade > 0 " +
-            // ESTA LINHA FAZ A MÁGICA:
             "AND (:busca IS NULL OR lower(e.item.nome) LIKE lower(concat('%', :busca, '%'))) " +
             "GROUP BY e.item.id, e.item.nome, TYPE(e.item)")
     Page<EstoqueSaldoDTO> findEstoqueSaldosComFiltro(Pageable pageable, @Param("busca") String busca);
@@ -49,8 +47,8 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
             "e.item.id, e.item.nome, CAST(SUM(e.quantidade) as string), 0) " +
             "FROM Estoque e " +
             "GROUP BY e.item.id, e.item.nome, e.item.estoqueMinimo " +
-            "HAVING (e.item.estoqueMinimo > 0 AND SUM(e.quantidade) < e.item.estoqueMinimo) " + // Regra Específica
-            "OR (e.item.estoqueMinimo <= 0 AND SUM(e.quantidade) < :limiteEstoqueBaixoGeral)") // Regra Geral
+            "HAVING (e.item.estoqueMinimo > 0 AND SUM(e.quantidade) < e.item.estoqueMinimo) " +
+            "OR (e.item.estoqueMinimo <= 0 AND SUM(e.quantidade) < :limiteEstoqueBaixoGeral)")
     List<AlertaEstoqueDTO> findItensComEstoqueBaixoComRegraHieraquica(@Param("limiteEstoqueBaixoGeral") long limiteEstoqueBaixoGeral);
 
     @Query("SELECT DISTINCT e.item FROM Estoque e WHERE e.quantidade > 0")
@@ -59,10 +57,10 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
     @Query("""
         SELECT new com.diego.sistemafarmaciasb.dtos.dashboard.MovimentacaoMensalDTO(
             MONTH(m.dataMovimentacao),
-            SUM(CASE WHEN m.tipoMovimentacao = 'ENTRADA' THEN m.quantidade ELSE 0 END),
-            SUM(CASE WHEN m.tipoMovimentacao = 'SAIDA' THEN m.quantidade ELSE 0 END)
+            SUM(CASE WHEN m.tipoMovimentacao IN ('ENTRADA', 'AJUSTE_ENTRADA') THEN mi.quantidade ELSE 0 END),
+            SUM(CASE WHEN m.tipoMovimentacao IN ('SAIDA', 'AJUSTE_SAIDA') THEN mi.quantidade ELSE 0 END)
         )
-        FROM Movimentacao m
+        FROM Movimentacao m JOIN m.itens mi
         WHERE m.dataMovimentacao >= :dataLimite
         GROUP BY MONTH(m.dataMovimentacao)
         ORDER BY MONTH(m.dataMovimentacao)
@@ -83,4 +81,3 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID> {
     @Query("SELECT DISTINCT e.item.id FROM Estoque e WHERE e.quantidade > 0")
     Set<UUID> findDistinctItemIdsInEstoque();
 }
-
