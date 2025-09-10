@@ -1,6 +1,6 @@
-#  Sistema de Gestão de Farmácia Hospitalar - Backend  dược
+#  Sistema de Gestão de Farmácia Hospitalar - Backend
 
-![Java](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge)
@@ -20,7 +20,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 ## 🛠️ Tecnologias Utilizadas
 
 #### **Backend**
-* **Java 17+**
+* **Java 21+**
 * **Spring Boot 3.x**
 * **Spring Web:** Para a criação dos controllers e endpoints RESTful.
 * **Spring Data JPA / Hibernate:** Para a persistência de dados e mapeamento objeto-relacional.
