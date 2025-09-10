@@ -21,7 +21,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 
 #### **Backend**
 * **Java 21+**
-* **Spring Boot 3.x**
+* **Spring Boot 3.5.5**
 * **Spring Web:** Para a criação dos controllers e endpoints RESTful.
 * **Spring Data JPA / Hibernate:** Para a persistência de dados e mapeamento objeto-relacional.
 * **Spring Security:** Para o controle de autenticação e autorização.
