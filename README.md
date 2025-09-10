@@ -42,7 +42,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 * **Render.com:** Plataforma de nuvem para o deploy da aplicação e do banco de dados.
 * **Git & GitHub:** Para versionamento de código.
 
-## 🚀 Como Executar o Projeto
+##  Como Executar o Projeto
 
 ### Pré-requisitos
 -   JDK 21 ou superior.
@@ -84,7 +84,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 
 A API estará disponível em `http://localhost:8080`.
 
-## 🏛️ Estrutura da API (Principais Endpoints)
+##  Estrutura da API (Principais Endpoints)
 
 -   `POST /api/auth/login`: Autentica um usuário e retorna um token JWT.
 -   `GET, POST, PUT /api/itens`: Gerenciamento completo de itens (medicamentos e insumos).
