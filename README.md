@@ -1,8 +1,8 @@
 #  Sistema de Gestão de Farmácia Hospitalar - Backend
 
 ![Java](https://img.shields.io/badge/Java-21%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.5-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow?style=for-the-badge)
 
 API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar. O sistema foi projetado para ser robusto, seguro e escalável, cobrindo as principais operações do dia a dia, desde o recebimento de mercadorias até a dispensação para os setores do hospital.
