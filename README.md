@@ -7,7 +7,7 @@
 
 API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar. O sistema foi projetado para ser robusto, seguro e escalável, cobrindo as principais operações do dia a dia, desde o recebimento de mercadorias até a dispensação para os setores do hospital.
 
-## ✨ Features Principais
+##  Features Principais
 
 -   **Gestão de Itens:** CRUD completo para Medicamentos e Insumos, utilizando estratégia de herança (`SINGLE_TABLE`) com JPA/Hibernate.
 -   **Controle de Estoque (FEFO):** Gerenciamento de múltiplos lotes por item, com controle de data de validade e baixa de estoque seguindo a regra "Primeiro que Vence, Primeiro que Sai" (FEFO).
@@ -17,7 +17,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 -   **Dashboard de BI:** Endpoints que fornecem dados agregados para alimentar um dashboard de Business Intelligence, incluindo estatísticas, alertas de estoque baixo e lotes próximos ao vencimento.
 -   **Consulta com IA (em desenvolvimento):** Exploração do Spring AI para permitir consultas ao sistema em linguagem natural.
 
-## 🛠️ Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
 #### **Backend**
 * **Java 21+**
