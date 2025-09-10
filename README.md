@@ -45,7 +45,7 @@ API RESTful completa para o gerenciamento de estoque de uma farmácia hospitalar
 ## 🚀 Como Executar o Projeto
 
 ### Pré-requisitos
--   JDK 17 ou superior.
+-   JDK 21 ou superior.
 -   Maven 3.8 ou superior.
 -   Uma instância do PostgreSQL rodando localmente ou na nuvem.
 -   (Opcional) Uma chave de API da OpenAI para as funcionalidades de IA.
